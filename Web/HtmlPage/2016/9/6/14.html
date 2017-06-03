@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="/Css/tableStyle.css" rel="stylesheet" /><!--在模板文件中引用外部文件时一定要使用绝对路径-->
+    <!--<link href="../css/tableStyle.css" rel="stylesheet" />--><!--相对路径不行啊-->
+
+    <script src="/js/jquery-3.2.0.min.js"></script>
+    <script>
+        $(function () {
+            $("#btnAdd").click(function () {
+                addComment();
+            });
+            loadComment();
+        });
+
+        function addComment() {
+            var msg = $("#txtContent").val();
+            if (msg != "") {
+                $.post("/ashx/BookComment.ashx", { "action": "add", "msg": msg, "bookId": 14 }, function (data) {
+                    if (data == "ok") {
+                        $("#txtContent").val("");
+                        $("#txtContent").focus();
+                        loadComment();
+                    } else {
+                        $("#txtMsg").text("评论失败");
+                    }
+                });
+            } else {
+                $("#txtMsg").text("评论不能为空");
+                $("#txtContent").focus();
+            }
+        }
+
+        function loadComment() {
+            $("#commentList").html("");
+            $.post("/ashx/BookComment.ashx", { "action": "load", "bookId": 14 }, function (data) {
+                var serverData = $.parseJSON(data);
+                var serverDataLength = serverData.length;
+                for (var i = 0; i < serverDataLength; i++) {
+                    $("<li>" + serverData[i].CreateDateTime + ":" + serverData[i].Msg + "</li>").appendTo("#commentList");
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <table>
+        <tr><td>书名</td><td>C语言从基础到灭亡</td></tr>
+        <tr><td>作者</td><td>吴求学</td></tr>
+        <tr><td>单价</td><td>36.00</td></tr>
+        <tr><td>封面</td><td><img src="/Images/BookCovers/9787115155375.jpg" /></td></tr>
+        <tr><td>简介</td><td>时至今日，C语言仍然是计算机领域的通用语言之一，但今天的C语言已经和最初的时候大不相同了。本书最主要的一个目的就是通过一种“现代方法”来介绍C语言，书中强调标准C，强调软件工程，不再强调“手工优化”。这一版中紧密结合了C99标准，并与C89标准进行对照，补充了C99中的*特性。本书分为C语言的基础特性、C语言的高级特性、C语言标准库和参考资料4个部分。每章末尾都有一个“问与答”小节给出一系列与该章内容相关的问题及答案，此外还包含适量的习题。 　　本书是为大学本科阶段的C语言课程编写的教材，同时也非常适合作为其他课程的辅助用书。</td></tr>
+    </table>
+    <hr />
+    <ul id="commentList">
+
+    </ul>
+    <textarea id="txtContent" rows="20" cols="100" class="reply_box" placeholder="有什么感想?来说说!!"></textarea><br />
+    <input type="button" id="btnAdd" value="发布评论" class="reply_btn" />
+    <span id="txtMsg" style="font-size:14px;color:red;"></span>
+</body>
+</html>
